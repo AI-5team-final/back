@@ -2,8 +2,8 @@ package com.example.backend.pdf;
 
 import com.example.backend.dto.*;
 import com.example.backend.dto.sign.SecurityUserDto;
-//import com.example.backend.swagger.PdfControllerDocs;
 import com.example.backend.dto.AgentFeedbackDTO;
+import com.example.backend.swagger.PdfControllerDocs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/pdf")
 @RequiredArgsConstructor
-public class PdfController  {
-//public class PdfController implements PdfControllerDocs {
+public class PdfController implements PdfControllerDocs {
 
     private final PdfService pdfService;
 

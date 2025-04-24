@@ -14,8 +14,8 @@ services:
       - backend_network
 
   ai-server:  # ✅ FastAPI
-    container_name: fastapi-app
-    image: sonyeoul/fastapi-app:latest
+    container_name: ai-server
+    image: sonyeoul/ai-server:latest
     ports:
       - "8000:8000"
     env_file:

@@ -1,0 +1,34 @@
+name: Deploy to Server
+
+on:
+  workflow_run:
+    workflows: ["Docker Build and Push"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    name: Deploy Container
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ GitHub Repository Checkout
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2️⃣ Docker Hub에서 최신 이미지 Pull
+      - name: Pull latest Docker image
+        run: docker pull sonyeoul/spring-app:latest
+
+      # 3️⃣ 기존 컨테이너 정리 (실행 중이면 중지 & 삭제)
+      - name: Stop and remove old container
+        run: |
+          docker stop spring-app || true
+          docker rm spring-app || true
+
+      # 4️⃣ 새 컨테이너 실행 (환경 변수는 application-prod.yml에서 처리)
+      - name: Run new container
+        run: |
+          docker run -d --name spring-app -p 9000:9000 \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            sonyeoul/spring-app:latest

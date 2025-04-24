@@ -1,0 +1,39 @@
+spring:
+  servlet:
+    multipart:
+      max-request-size: 5MB
+      max-file-size: 5MB
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URI}  # .env 파일에서 값을 읽어옴
+      database: ${MONGO_DB_NAME}  # .env 파일에서 값을 읽어옴
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jwt:
+    secret: ${JWT_API}
+  jpa:
+    hibernate:
+      ddl-auto: validate  # 개발 중에는 update, 운영에선 validate or none 권장
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ap-northeast-2
+toss:
+  secret-key: ${TOSS_SECRET_KEY}
+discord:
+  bot:
+    token: ${DISCORD_BOT_TOKEN}
+server:
+  max-http-request-header-size: 32KB
+  port: 9000

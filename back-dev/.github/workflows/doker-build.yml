@@ -1,0 +1,54 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DOCKER_HUB_REPOSITORY: sonyeoul/spring-app
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create .env file for local/CI use
+        run: |
+          echo "MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}" >> .env
+          echo "MONGO_DB_NAME=${{ secrets.MONGO_DB_NAME }}" >> .env
+          echo "POSTGRES_URL=${{ secrets.POSTGRES_URL }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+          echo "JWT_API=${{ secrets.JWT_API }}" >> .env
+          echo "DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" >> .env
+
+      - name: Set up Docker BuildX
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --tag ${{ env.DOCKER_HUB_REPOSITORY }}:latest \
+            --tag ${{ env.DOCKER_HUB_REPOSITORY }}:${{ github.sha }} \
+            --cache-from=type=registry,ref=${{ env.DOCKER_HUB_REPOSITORY }}:cache \
+            --cache-to=type=inline \
+            --push .
+
+      - name: Notify Discord
+        if: success()
+        run: |
+          curl -X POST "https://discord.com/api/v10/channels/1357169309050212432/messages" \
+            -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "content": "✅ [Spring Backend] Docker 이미지 빌드 및 푸시 완료!\n📁 Repo: ${{ github.repository }}\n🔀 Commit: ${{ github.sha }}\n👤 By: ${{ github.actor }}"
+            }'
